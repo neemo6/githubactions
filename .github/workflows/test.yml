@@ -1,14 +1,11 @@
 name: Terraform Deploy
-
 on:
   # push:
   #   branches: [ main ]
   workflow_dispatch:   # ✅ Manual trigger only
-
 permissions:
   id-token: write
   contents: read
-
 jobs:
   terraform-plan:
     name: Terraform Plan
@@ -16,32 +13,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: role-to-assume: arn:aws:iam::616421593393:role/github-oidcrole
+          role-to-assume: arn:aws:iam::616421593393:role/github-oidcrole
           aws-region: us-east-1
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-
       - name: Terraform Init
         run: terraform init
-
       - name: Terraform Validate
         run: terraform validate
-
       - name: Terraform Plan
         run: terraform plan -out=tfplan
-
       - name: Upload Plan Artifact
         uses: actions/upload-artifact@v4
         with:
           name: tfplan
           path: tfplan
           retention-days: 1
-
   terraform-apply:
     name: Terraform Apply
     needs: terraform-plan
@@ -50,23 +40,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: role-to-assume: arn:aws:iam::616421593393:role/github-oidcrole
+          role-to-assume: arn:aws:iam::616421593393:role/github-oidcrole
           aws-region: us-east-1
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-
       - name: Download Plan Artifact
         uses: actions/download-artifact@v4
         with:
           name: tfplan
-
       - name: Terraform Init
         run: terraform init
-
       - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan                        
+        run: terraform apply -auto-approve tfplan
